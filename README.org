@@ -5,7 +5,7 @@
 
 ** IMPORTANT
 
-This is untested and work in progress. I just collected various snippets of my =.init.el=,
+This is untested and work in progress. I just collected various snippets of my =init.el=,
 if you encounter any problems let me know. Some of this is my own work,
 some is not, also the code may changed since I copied it.
 I tried to include references where I remember.
@@ -41,10 +41,6 @@ https://emacs.stackexchange.com/questions/15233/hide-modeline-in-all-bottom-wind
 (setq helm-echo-input-in-header-line t)
 
 (defvar bottom-buffers nil
-  "List of bottom buffers before helm session.
-    Its element is a pair of `buffer-name' and `mode-line-format'.")
-
-(defvar buffer-points nil
   "List of bottom buffers before helm session.
     Its element is a pair of `buffer-name' and `mode-line-format'.")
 
