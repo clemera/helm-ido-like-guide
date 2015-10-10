@@ -136,7 +136,7 @@ Reference:
 Flx support for helm.
 
 Reference:
-[[https://github.com/PythonNut/emacs-config/blob/f1df3ac16410bfa72d88855325bd6c2de56f587b/modules/config-helm.el#L33#L89][GithubRepo]]
+[[https://github.com/PythonNut/emacs-config/blob/f1df3ac16410bfa72d88855325bd6c2de56f587b/modules/config-helm.el#L33#L89][Github/PythonNut]]
 
 #+BEGIN_SRC emacs-lisp
 (with-eval-after-load 'helm
