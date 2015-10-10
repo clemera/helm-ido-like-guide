@@ -1,0 +1,123 @@
+* Migration Guide from ido to helm
+:PROPERTIES:
+:SUMMARY: Get an ido like interface with the power of helm.
+:END:
+
+** IMPORTANT
+
+This is untested and work in progress. I just collected various snippets of my =.init.el=,
+if you encounter any problems let me know. Some of this is my own work,
+some is not, also the code may changed since I copied it.
+I tried to include references where I remember.
+
+** Appearance
+
+With the following helm always pops up at the bottom and will look
+more like the minibuffer with ido-vertical-mode.
+
+First make sure that helm buffers always shows up at the bottom.
+
+#+BEGIN_SRC emacs-lisp
+(setq helm-split-window-in-side-p t)
+
+(add-to-list 'display-buffer-alist
+             '("\\`\\*helm.*\\*\\'"
+               (display-buffer-in-side-window)
+               (inhibit-same-window . t)
+               (window-height . 0.4)))
+
+(setq helm-swoop-split-with-multiple-windows nil
+        helm-swoop-split-direction 'split-window-vertically
+        helm-swoop-split-window-function 'helm-default-display-buffer)
+
+#+END_SRC
+
+Now enable input in header line and hide the mode-lines above.
+
+Reference:
+https://emacs.stackexchange.com/questions/15233/hide-modeline-in-all-bottom-windows-while-helm-is-active/15241#15241
+
+#+BEGIN_SRC emacs-lisp
+(setq helm-echo-input-in-header-line t)
+
+(defvar bottom-buffers nil
+  "List of bottom buffers before helm session.
+    Its element is a pair of `buffer-name' and `mode-line-format'.")
+
+(defvar buffer-points nil
+  "List of bottom buffers before helm session.
+    Its element is a pair of `buffer-name' and `mode-line-format'.")
+
+(defun bottom-buffers-init ()
+  (setq-local mode-line-format (default-value 'mode-line-format))
+  (setq bottom-buffers
+        (cl-loop for w in (window-list)
+                 when (window-at-side-p w 'bottom)
+                 collect (with-current-buffer (window-buffer w)
+                           (cons (buffer-name) mode-line-format)))))
+
+
+(defun bottom-buffers-hide-mode-line ()
+  (setq-default cursor-in-non-selected-windows nil)
+  (mapc (lambda (elt)
+          (with-current-buffer (car elt)
+            (setq-local mode-line-format nil)))
+        bottom-buffers))
+
+
+(defun bottom-buffers-show-mode-line ()
+  (setq-default cursor-in-non-selected-windows t)
+  (when bottom-buffers
+    (mapc (lambda (elt)
+            (with-current-buffer (car elt)
+              (setq-local mode-line-format (cdr elt))))
+          bottom-buffers)
+    (setq bottom-buffers nil)))
+
+(defun helm-keyboard-quit-advice (orig-func &rest args)
+  (bottom-buffers-show-mode-line)
+  (apply orig-func args))
+
+
+(add-hook 'helm-before-initialize-hook #'bottom-buffers-init)
+(add-hook 'helm-after-initialize-hook #'bottom-buffers-hide-mode-line)
+(add-hook 'helm-exit-minibuffer-hook #'bottom-buffers-show-mode-line)
+(add-hook 'helm-cleanup-hook #'bottom-buffers-show-mode-line)
+(advice-add 'helm-keyboard-quit :around #'helm-keyboard-quit-advice)
+#+END_SRC
+
+** File Navigation
+
+Backspace goes to the upper folder if you are not inside a filename,
+and return will select a file or navigate into the directory if
+it is one.
+
+Reference:
+http://emacs.stackexchange.com/a/7896/9198
+
+#+BEGIN_SRC emacs-lisp
+(defun dwim-helm-find-files-up-one-level-maybe ()
+  (interactive)
+  (if (looking-back "/" 1)
+      (call-interactively 'helm-find-files-up-one-level)
+    (delete-backward-char 1)))
+
+(define-key helm-read-file-map (kbd "<backsqpace>") 'helm-find-files-up-one-level-maybe)
+(define-key helm-find-files-map (kbd "<backspace>") 'helm-find-files-up-one-level-maybe)
+
+(defun dwim-helm-find-files-navigate-forward (orig-fun &rest args)
+  "Adjust how helm-execute-persistent actions behaves, depending on context"
+  (if (file-directory-p (helm-get-selection))
+      (apply orig-fun args)
+    (helm-maybe-exit-minibuffer)))
+
+
+(define-key helm-map (kbd "<return>") 'helm-maybe-exit-minibuffer)
+(define-key helm-map (kbd "RET") 'helm-maybe-exit-minibuffer)
+(define-key helm-find-files-map (kbd "<return>") 'helm-execute-persistent-action)
+(define-key helm-read-file-map (kbd "<return>") 'helm-execute-persistent-action)
+(define-key helm-find-files-map (kbd "RET") 'helm-execute-persistent-action)
+(define-key helm-read-file-map (kbd "RET") 'helm-execute-persistent-action)
+
+(advice-add 'helm-execute-persistent-action :around #'dwim-helm-find-files-navigate-forward)
+#+END_SRC
