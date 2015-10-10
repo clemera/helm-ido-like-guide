@@ -3,8 +3,8 @@
 :SUMMARY: Get an ido like interface with the power of helm.
 :END:
 
-This guide is for people which used ido in the past and want
-helm to behave more like ido (ido + flx-ido + ido-vertical-mode).
+This guide is for people which used ido in the past and want helm to
+behave more like ido (ido + flx-ido + ido-vertical-mode).
 
 For now the configuration snippets inlcude the following
 features:
@@ -14,6 +14,9 @@ features:
 - No mode-line above the helm buffer.
 - Flx support
 - DEL and RETURN for file navigation like in ido
+
+
+It is assumed that you have helm, helm-swoop and flx installed.
 
 
 *IMPORTANT*
