@@ -5,14 +5,13 @@
 
 ** IMPORTANT
 
-This is untested and work in progress. I just collected various snippets of my =init.el=,
-if you encounter any problems let me know. Some of this is my own work,
-some is not, also the code may changed since I copied it.
+This is work in progress. If you encounter any problems let me know.
+Some of this is my own work, but most is based on work of others.
 I tried to include references where I remember.
 
 ** Appearance
 
-With the following helm always pops up at the bottom and will look
+With the following configuration helm always pops up at the bottom and will look
 more like the minibuffer with ido-vertical-mode.
 
 First make sure that helm buffers always shows up at the bottom.
@@ -98,8 +97,10 @@ http://emacs.stackexchange.com/a/7896/9198
       (call-interactively 'helm-find-files-up-one-level)
     (delete-backward-char 1)))
 
-(define-key helm-read-file-map (kbd "<backsqpace>") 'helm-find-files-up-one-level-maybe)
-(define-key helm-find-files-map (kbd "<backspace>") 'helm-find-files-up-one-level-maybe)
+(define-key helm-read-file-map (kbd "<backsqpace>") 'dwim-helm-find-files-up-one-level-maybe)
+(define-key helm-read-file-map (kbd "DEL") 'dwim-helm-find-files-up-one-level-maybe)
+(define-key helm-find-files-map (kbd "<backspace>") 'dwim-helm-find-files-up-one-level-maybe)
+(define-key helm-find-files-map (kbd "DEL") 'dwim-helm-find-files-up-one-level-maybe)
 
 (defun dwim-helm-find-files-navigate-forward (orig-fun &rest args)
   "Adjust how helm-execute-persistent actions behaves, depending on context"
