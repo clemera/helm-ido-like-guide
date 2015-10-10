@@ -19,9 +19,10 @@ This is work in progress. If you encounter any problems let me know.
 Some of this is my own work, but most is based on work of others.
 I included references to the origins.
 
-** Screenshot
+** Screenshots
 
 [[./screenshot.png]]
+[[./screenshot2.png]]
 
 ** Appearance
 
