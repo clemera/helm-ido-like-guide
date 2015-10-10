@@ -11,7 +11,7 @@ I tried to include references where I remember.
 
 ** Screenshot
 
-[[./Screenshot from 2015-10-10 18:14:59.png]]
+[[./screenshot.png]]
 
 ** Appearance
 
@@ -124,7 +124,7 @@ http://emacs.stackexchange.com/a/7896/9198
 #+END_SRC
 ** Flx
 
-Flx, support for helm.
+Flx support for helm.
 
 Reference: https://www.reddit.com/r/emacs/comments/3o7a9i/using_helm_with_flx_for_better_fuzzy_matching/
 #+BEGIN_SRC sh
