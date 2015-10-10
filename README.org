@@ -47,7 +47,7 @@ Only pop up at the bottom.
 Input in header line and hide the mode-lines above.
 
 Reference:
-http://emacs.stackexchange.com/a/15250/9198
+[[http://emacs.stackexchange.com/a/15250/9198][StackExchange]]
 
 #+BEGIN_SRC emacs-lisp
 (setq helm-echo-input-in-header-line t)
@@ -101,7 +101,7 @@ and Return will select a file or navigate into the directory if
 it is one.
 
 Reference:
-http://emacs.stackexchange.com/a/7896/9198
+[[http://emacs.stackexchange.com/a/7896/9198][StackExchange]]
 
 #+BEGIN_SRC emacs-lisp
 (defun dwim-helm-find-files-up-one-level-maybe ()
@@ -136,7 +136,7 @@ http://emacs.stackexchange.com/a/7896/9198
 Flx support for helm.
 
 Reference:
-https://github.com/PythonNut/emacs-config/blob/f1df3ac16410bfa72d88855325bd6c2de56f587b/modules/config-helm.el#L33#L89
+[[https://github.com/PythonNut/emacs-config/blob/f1df3ac16410bfa72d88855325bd6c2de56f587b/modules/config-helm.el#L33#L89][GithubRepo]]
 
 #+BEGIN_SRC sh
   (require 'flx)
