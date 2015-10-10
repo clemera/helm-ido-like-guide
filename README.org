@@ -10,7 +10,10 @@ Some of this is my own work, but most is based on work of others.
 I tried to include references where I remember.
 
 ** Screenshot
-[[file:Screenshot from 2015-10-10 18:14:59.png][This is how it looks]]
+
+https://github.com/hatschipuh/ido2helm/blob/master/Screenshot%20from%202015-10-10%2018:14:59.png
+
+
 ** Appearance
 
 With the following configuration helm always pops up at the bottom and will look
