@@ -1,9 +1,7 @@
-* Migration Guide from ido to helm
+* Ido2Helm
 :PROPERTIES:
 :SUMMARY: Get an ido like interface with the power of helm.
 :END:
-
-** Ido2Helm
 
 This guide is for people which used ido in the past and want
 helm to behave more like ido. For now the configuration snippets inlcude the following
@@ -16,7 +14,7 @@ features:
 - DEL and RETURN for file navigation like in ido
 
 
-:IMPORTANT:
+*IMPORTANT*
 This is work in progress. If you encounter any problems let me know.
 Some of this is my own work, but most is based on work of others.
 I included references to the origins.
