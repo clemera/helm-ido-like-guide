@@ -3,11 +3,23 @@
 :SUMMARY: Get an ido like interface with the power of helm.
 :END:
 
-** IMPORTANT
+** Ido2Helm
 
+This guide is for people which used ido in the past and want
+helm to behave more like ido. For now the configuration snippets inlcude the following
+features:
+
+- Always pop up at the bottom
+- Input in header line
+- No mode-line above the helm buffer.
+- Flx support
+- DEL and RETURN for file navigation like in ido
+
+
+:IMPORTANT:
 This is work in progress. If you encounter any problems let me know.
 Some of this is my own work, but most is based on work of others.
-I tried to include references where I remember.
+I included references to the origins.
 
 ** Screenshot
 
@@ -15,10 +27,7 @@ I tried to include references where I remember.
 
 ** Appearance
 
-With the following configuration helm always pops up at the bottom and will look
-more like the minibuffer with ido-vertical-mode.
-
-First make sure that helm buffers always shows up at the bottom.
+Only pop up at the bottom.
 
 #+BEGIN_SRC emacs-lisp
 (setq helm-split-window-in-side-p t)
@@ -35,7 +44,7 @@ First make sure that helm buffers always shows up at the bottom.
 
 #+END_SRC
 
-Now enable input in header line and hide the mode-lines above.
+Input in header line and hide the mode-lines above.
 
 Reference:
 http://emacs.stackexchange.com/a/15250/9198
@@ -88,7 +97,7 @@ http://emacs.stackexchange.com/a/15250/9198
 ** File Navigation
 
 Backspace goes to the upper folder if you are not inside a filename,
-and return will select a file or navigate into the directory if
+and Return will select a file or navigate into the directory if
 it is one.
 
 Reference:
