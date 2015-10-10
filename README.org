@@ -9,6 +9,9 @@ This is work in progress. If you encounter any problems let me know.
 Some of this is my own work, but most is based on work of others.
 I tried to include references where I remember.
 
+** Screenshot
+
+[[file:~/Pictures/Screenshot from 2015-10-10 18:14:59.png][This is how it looks]]
 ** Appearance
 
 With the following configuration helm always pops up at the bottom and will look
@@ -117,4 +120,41 @@ http://emacs.stackexchange.com/a/7896/9198
 (define-key helm-read-file-map (kbd "RET") 'helm-execute-persistent-action)
 
 (advice-add 'helm-execute-persistent-action :around #'dwim-helm-find-files-navigate-forward)
+#+END_SRC
+** Flx
+
+Flx, support for helm.
+
+Reference: https://www.reddit.com/r/emacs/comments/3o7a9i/using_helm_with_flx_for_better_fuzzy_matching/
+#+BEGIN_SRC sh
+;; an emacs 24.4 macro. You know what to do if you have 24.3
+(with-eval-after-load 'helm
+  ;; make sure you have flx installed
+  (require 'flx)
+  ;; this is a bit hackish, ATM, redefining functions I don't own
+  (defvar helm-flx-cache (flx-make-string-cache #'flx-get-heatmap-str))
+
+  (defun helm-score-candidate-for-pattern (candidate pattern)
+    (or (car (flx-score candidate pattern helm-flx-cache)) 0))
+
+  (defun helm-fuzzy-default-highlight-match (candidate)
+    (let* ((pair (and (consp candidate) candidate))
+            (display (if pair (car pair) candidate))
+            (real (cdr pair)))
+      (with-temp-buffer
+        (insert display)
+        (goto-char (point-min))
+        (if (string-match-p " " helm-pattern)
+          (cl-loop with pattern = (split-string helm-pattern)
+            for p in pattern
+            do (when (search-forward p nil t)
+                 (add-text-properties
+                   (match-beginning 0) (match-end 0) '(face helm-match))))
+          (cl-loop with pattern = (cdr (flx-score display
+                                         helm-pattern helm-flx-cache))
+            for index in pattern
+            do (add-text-properties
+                 (1+ index) (+ 2 index) '(face helm-match))))
+        (setq display (buffer-string)))
+      (if real (cons display real) display))))
 #+END_SRC
