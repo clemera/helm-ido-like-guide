@@ -135,36 +135,47 @@ http://emacs.stackexchange.com/a/7896/9198
 
 Flx support for helm.
 
-Reference: https://www.reddit.com/r/emacs/comments/3o7a9i/using_helm_with_flx_for_better_fuzzy_matching/
+Reference:
+https://github.com/PythonNut/emacs-config/blob/f1df3ac16410bfa72d88855325bd6c2de56f587b/modules/config-helm.el#L33#L89
+
 #+BEGIN_SRC sh
-;; an emacs 24.4 macro. You know what to do if you have 24.3
-(with-eval-after-load 'helm
-  ;; make sure you have flx installed
   (require 'flx)
-  ;; this is a bit hackish, ATM, redefining functions I don't own
-  (defvar helm-flx-cache (flx-make-string-cache #'flx-get-heatmap-str))
+  (defvar helm-flx-cache (flx-make-string-cache #'flx-get-heatmap-file))
 
-  (defun helm-score-candidate-for-pattern (candidate pattern)
-    (or (car (flx-score candidate pattern helm-flx-cache)) 0))
+  (defadvice helm-score-candidate-for-pattern
+    (around flx-score (candidate pattern) activate preactivate compile)
+    (setq ad-return-value
+      (or
+        (car (flx-score
+               (substring-no-properties candidate)
+               (substring-no-properties pattern)
+               helm-flx-cache))
+        0)))
 
-  (defun helm-fuzzy-default-highlight-match (candidate)
-    (let* ((pair (and (consp candidate) candidate))
-            (display (if pair (car pair) candidate))
-            (real (cdr pair)))
-      (with-temp-buffer
-        (insert display)
-        (goto-char (point-min))
-        (if (string-match-p " " helm-pattern)
-          (cl-loop with pattern = (split-string helm-pattern)
-            for p in pattern
-            do (when (search-forward p nil t)
-                 (add-text-properties
-                   (match-beginning 0) (match-end 0) '(face helm-match))))
-          (cl-loop with pattern = (cdr (flx-score display
-                                         helm-pattern helm-flx-cache))
-            for index in pattern
-            do (add-text-properties
-                 (1+ index) (+ 2 index) '(face helm-match))))
-        (setq display (buffer-string)))
-      (if real (cons display real) display))))
+  (defadvice helm-fuzzy-default-highlight-match
+    (around flx-highlight (candidate) activate preactivate compile)
+    "The default function to highlight matches in fuzzy matching.
+  It is meant to use with `filter-one-by-one' slot."
+    (setq ad-return-value
+      (let* ((pair (and (consp candidate) candidate))
+              (display (if pair (car pair) candidate))
+              (real (cdr pair)))
+        (with-temp-buffer
+          (insert display)
+          (goto-char (point-min))
+          (if (string-match-p " " helm-pattern)
+            (cl-loop with pattern = (split-string helm-pattern)
+              for p in pattern
+              do (when (search-forward (substring-no-properties p) nil t)
+                   (add-text-properties
+                     (match-beginning 0) (match-end 0) '(face helm-match))))
+            (cl-loop with pattern = (cdr (flx-score
+                                           (substring-no-properties display)
+                                           helm-pattern helm-flx-cache))
+              for index in pattern
+              do (add-text-properties
+                   (1+ index) (+ 2 index) '(face helm-match))))
+          (setq display (buffer-string)))
+        (if real (cons display real) display))))
+
 #+END_SRC
