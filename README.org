@@ -38,7 +38,7 @@ First make sure that helm buffers always shows up at the bottom.
 Now enable input in header line and hide the mode-lines above.
 
 Reference:
-https://emacs.stackexchange.com/questions/15233/hide-modeline-in-all-bottom-windows-while-helm-is-active/15241#15241
+http://emacs.stackexchange.com/a/15250/9198
 
 #+BEGIN_SRC emacs-lisp
 (setq helm-echo-input-in-header-line t)
