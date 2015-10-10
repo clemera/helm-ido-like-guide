@@ -4,7 +4,9 @@
 :END:
 
 This guide is for people which used ido in the past and want
-helm to behave more like ido. For now the configuration snippets inlcude the following
+helm to behave more like ido (ido + flx-ido + ido-vertical-mode).
+
+For now the configuration snippets inlcude the following
 features:
 
 - Always pop up at the bottom
