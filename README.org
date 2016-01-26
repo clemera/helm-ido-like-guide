@@ -3,11 +3,10 @@
 :SUMMARY: Opinionated configuration guide for the helm package of Emacs
 :END:
 
-This guide was intended for people which used ido in the past and want helm to
-behave more like ido (ido + flx-ido + ido-vertical-mode). Because now there are many other
-improvements which are useful in general and not only for former ido users
- it is has become more like a general guide for people who don't like the default interface 
-of helm.
+This guide was intended for people which used ido in the past and wanted helm to
+behave more like ido (ido + flx-ido + ido-vertical-mode). Because the guide inlcudes
+many other snippets now which I consider useful in general it has become more of collection
+of snippets to improve helms default interface and is not targeted to former ido users only. 
  
 For now the configuration snippets inlcude the following
 features:
@@ -18,7 +17,7 @@ features:
 - No mode-line above the helm buffer.
 - Flx support 
 - DEL and RETURN for file navigation like in ido
-- Remove the annoying dots for current and parent directory in helm file navigation
+- Remove the dots for current and parent directory in helm file navigation
 
 
 
@@ -26,7 +25,10 @@ features:
 
 This is work in progress. If you encounter any problems let me know.
 Some of this is my own work, but most is based on work of others that I summarized in this tutorial.
-I included the references to the origins.
+Everyone has his own opinions and although I consider the follwoing snippets improvements
+you might have a different opinion. You don't have to follow this guide completely because
+I have splitted it into parts and each snippet should be independent from each other.
+
 
 ** Screenshots
 
