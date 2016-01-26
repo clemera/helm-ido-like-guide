@@ -4,7 +4,8 @@
 :END:
 
 This guide is intended for people which used ido in the past and want helm to
-behave more like ido (ido + flx-ido + ido-vertical-mode).
+behave more like ido (ido + flx-ido + ido-vertical-mode). Of course you don't have 
+to be a former ido user, this guide is hopefully useful for others as well.
 
 For now the configuration snippets inlcude the following
 features:
