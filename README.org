@@ -12,9 +12,24 @@ features:
 - Always pop up at the bottom
 - Input in header line
 - No mode-line above the helm buffer.
-- Flx support
+- Flx support 
 - DEL and RETURN for file navigation like in ido
 - Remove the annoying dots for current and parent directory in helm file navigation
+
+
+
+*NOTE*
+
+This is work in progress. If you encounter any problems let me know.
+Some of this is my own work, but most is based on work of others that I summarized in this tutorial.
+I included the references to the origins.
+
+** Screenshots
+
+[[./screenshot.png]]
+[[./screenshot2.png]]
+
+** Installing helm and friends
 
 If you haven't already go and install helm, helm-swoop and helm-flx. You can do it
 quickly by evaluating the following snippet.
@@ -31,16 +46,18 @@ quickly by evaluating the following snippet.
 #+END_SRC
 
 
-*NOTE*
+Now load and activate the packages like shown below.
 
-This is work in progress. If you encounter any problems let me know.
-Some of this is my own work, but most is based on work of others that I summarized in this tutorial.
-I included the references to the origins.
+#+BEGIN_SRC emacs-lisp
+(require 'helm-config)
+(helm-mode 1)
+(helm-flx-mode 1)
 
-** Screenshots
-
-[[./screenshot.png]]
-[[./screenshot2.png]]
+;; Change this keybindings to whatever you like
+(global-set-key (kbd "M-x") 'helm-M-x)
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
+(global-set-key (kbd "C-s") 'helm-swoop)
+#+END_SRC
 
 ** Consistent minibuffer like appearance
 
@@ -201,20 +218,4 @@ The following snippet will advice the helm source function to enable the flx fuz
   (apply f args))
 
 (advice-add 'helm-make-source :around 'my-helm-make-source)
-#+END_SRC
-
-** Activating helm
-
-Now you are ready to enjoy your new helm configuration,
-by loading and activating the necessary packages.
-
-#+BEGIN_SRC emacs-lisp
-(require 'helm-config)
-(helm-mode 1)
-(helm-flx-mode 1)
-
-;; Change this keybindings to whatever you like
-(global-set-key (kbd "M-x") 'helm-M-x)
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
-(global-set-key (kbd "C-s") 'helm-swoop)
 #+END_SRC
