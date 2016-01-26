@@ -3,7 +3,7 @@
 :SUMMARY: Get an ido like interface with the power of helm.
 :END:
 
-This guide is for people which used ido in the past and want helm to
+This guide is intended for people which used ido in the past and want helm to
 behave more like ido (ido + flx-ido + ido-vertical-mode).
 
 For now the configuration snippets inlcude the following
@@ -14,26 +14,37 @@ features:
 - No mode-line above the helm buffer.
 - Flx support
 - DEL and RETURN for file navigation like in ido
+- Remove the annoying dots for current and parent directory in helm file navigation
+
+If you haven't already go and install helm, helm-swoop and helm-flx. You can do it
+quickly by evaluating the following snippet.
+ 
+#+BEGIN_SRC emacs-lisp
+  (require 'package)
+  ;; Note that certificate verfication in Emacs 24.4 needs some 
+  ;; manual adjustments if you want to be really secure.
+  ;; Read this for more info on this: https://glyph.twistedmatrix.com/2015/11/editor-malware.html
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+  (package-refresh-contents)
+  (mapcar #'(lambda (package) (unless (package-installed-p package) (package-install package)))
+          '(helm helm-swoop helm-flx))
+#+END_SRC
 
 
-It is assumed that you have helm, helm-swoop and flx installed.
-
-
-*IMPORTANT*
+*NOTE*
 
 This is work in progress. If you encounter any problems let me know.
-Some of this is my own work, but most is based on work of others.
-I included references to the origins.
+Some of this is my own work, but most is based on work of others that I summarized in this tutorial.
+I included the references to the origins.
 
 ** Screenshots
 
 [[./screenshot.png]]
 [[./screenshot2.png]]
 
-** Appearance
+** Consistent minibuffer like appearance
 
-Only pop up at the bottom.
-
+The following snippet will configure helm to always pop up at the bottom.
 #+BEGIN_SRC emacs-lisp
 (setq helm-split-window-in-side-p t)
 
@@ -49,10 +60,10 @@ Only pop up at the bottom.
 
 #+END_SRC
 
-Input in header line and hide the mode-lines above.
+The following snippet will let you provide input in the header line 
+and hide the mode-lines above.
 
-Reference:
-[[http://emacs.stackexchange.com/a/15250/9198][StackExchange]]
+[[http://emacs.stackexchange.com/a/15250/9198][Reference]]
 
 #+BEGIN_SRC emacs-lisp
 (setq helm-echo-input-in-header-line t)
@@ -99,14 +110,16 @@ Reference:
 (advice-add 'helm-keyboard-quit :around #'helm-keyboard-quit-advice)
 #+END_SRC
 
-** File Navigation
+** Better File Navigation
+
+The following snippet will reconfigure the behaviour of keys in helm
+file navigation buffers.
 
 Backspace goes to the upper folder if you are not inside a filename,
 and Return will select a file or navigate into the directory if
 it is one.
 
-Reference:
-[[http://emacs.stackexchange.com/a/7896/9198][StackExchange]]
+[[http://emacs.stackexchange.com/a/7896/9198][Reference]]
 
 #+BEGIN_SRC emacs-lisp
 (defun dwim-helm-find-files-up-one-level-maybe ()
@@ -136,58 +149,72 @@ Reference:
 
 (advice-add 'helm-execute-persistent-action :around #'dwim-helm-find-files-navigate-forward)
 #+END_SRC
-** Flx
 
-Flx support for helm.
+And this snippet will remove the dots in helm file navigation
 
-Reference:
-[[https://github.com/PythonNut/emacs-config/blob/f1df3ac16410bfa72d88855325bd6c2de56f587b/modules/config-helm.el#L33#L89][Github/PythonNut]]
+[[https://github.com/TheBB/spacemacs-layers/tree/master/no-dots][Reference]]
 
 #+BEGIN_SRC emacs-lisp
-(with-eval-after-load 'helm
-  (require 'flx)
-  (defvar helm-flx-cache (flx-make-string-cache #'flx-get-heatmap-file))
-  (defadvice helm-score-candidate-for-pattern
-      (around flx-score (candidate pattern) activate preactivate compile)
-    (setq ad-return-value
-          (or
-           (car (flx-score
-                 (substring-no-properties candidate)
-                 (substring-no-properties pattern)
-                 helm-flx-cache))
-           0)))
 
-  (defadvice helm-fuzzy-default-highlight-match
-      (around flx-highlight (candidate) activate preactivate compile)
-    "The default function to highlight matches in fuzzy matching.
-It is meant to use with `filter-one-by-one' slot."
-    (setq ad-return-value
-          (let* ((pair (and (consp candidate) candidate))
-                 (display (if pair (car pair) candidate))
-                 (real (cdr pair)))
-            (with-temp-buffer
-              (insert display)
-              (goto-char (point-min))
-              (if (string-match-p " " helm-pattern)
-                  (cl-loop with pattern = (split-string helm-pattern)
-                           for p in pattern
-                           do (when (search-forward (substring-no-properties p) nil t)
-                                (add-text-properties
-                                 (match-beginning 0) (match-end 0) '(face helm-match))))
-                (cl-loop with pattern = (cdr (flx-score
-                                              (substring-no-properties display)
-                                              helm-pattern helm-flx-cache))
-                         for index in pattern
-                         do (add-text-properties
-                             (1+ index) (+ 2 index) '(face helm-match))))
-              (setq display (buffer-string)))
-            (if real (cons display real) display))))
+(require 'cl-lib)
 
-  (setq
-   helm-buffers-fuzzy-matching t
-   helm-imenu-fuzzy-match t
-   helm-recentf-fuzzy-match t
-   helm-locate-fuzzy-match nil
-   helm-M-x-fuzzy-match t
-   helm-semantic-fuzzy-match t))
+(with-eval-after-load 'helm-files
+    (advice-add 'helm-ff-filter-candidate-one-by-one
+                :around 'no-dots/helm-ff-filter-candidate-one-by-one)
+    (advice-add 'helm-find-files-up-one-level
+                :around 'no-dots/helm-find-files-up-one-level))
+
+(defvar no-dots-whitelist
+  '()
+  "List of helm buffers in which to show dots.")
+
+(defun no-dots/whitelistedp ()
+  (member (with-helm-buffer (buffer-name)) no-dots-whitelist))
+
+(defun no-dots/helm-ff-filter-candidate-one-by-one (fcn file)
+  (when (or (no-dots/whitelistedp)
+            (not (string-match "\\(?:/\\|\\`\\)\\.\\{1,2\\}\\'" file)))
+    (funcall fcn file)))
+
+(defun no-dots/helm-file-completion-source-p (&rest args) t)
+
+(defun no-dots/helm-find-files-up-one-level (fcn &rest args)
+  (prog2
+      (advice-add 'helm-file-completion-source-p
+                  :around 'no-dots/helm-file-completion-source-p)
+      (apply fcn args)
+    (advice-remove 'helm-file-completion-source-p
+                   'no-dots/helm-file-completion-source-p)))
+
+
+#+END_SRC
+
+** Flx everywhere
+
+The following snippet will advice the helm source function to enable the flx fuzzy match in all sources. 
+
+[[https://github.com/emacs-helm/helm/issues/145#issuecomment-151953381][Reference]]
+
+#+BEGIN_SRC emacs-lisp
+(defun my-helm-make-source (f &rest args)
+  (nconc args '(:fuzzy-match t))
+  (apply f args))
+
+(advice-add 'helm-make-source :around 'my-helm-make-source)
+#+END_SRC
+
+** Activating helm
+
+Now you are ready to enjoy your new helm configuration,
+by loading and activating the necessary packages.
+
+#+BEGIN_SRC emacs-lisp
+(require 'helm-config)
+(helm-mode 1)
+(helm-flx-mode 1)
+
+;; Change this keybindings to whatever you like
+(global-set-key (kbd "M-x") 'helm-M-x)
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
+(global-set-key (kbd "C-s") 'helm-swoop)
 #+END_SRC
