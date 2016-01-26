@@ -223,7 +223,7 @@ And this snippet will remove the dots in helm file navigation
 
 #+END_SRC
 
-** Flx everywhere
+** Improve Flx support
 
 The following snippet will advice the helm source function to enable the flx fuzzy match in all sources. 
 
@@ -236,3 +236,23 @@ The following snippet will advice the helm source function to enable the flx fuz
 
 (advice-add 'helm-make-source :around 'my-helm-make-source)
 #+END_SRC
+
+And you can increase flx speed (I have not benchmarked it myself) with 
+the following.
+
+[[http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/][Reference]]
+
+#+BEGIN_SRC emacs-lisp
+;; garbage collections
+(defun my-minibuffer-setup-hook ()
+  (setq gc-cons-threshold most-positive-fixnum))
+
+(defun my-minibuffer-exit-hook ()
+  (setq gc-cons-threshold 800000))
+
+(add-hook 'minibuffer-setup-hook #'my-minibuffer-setup-hook)
+(add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook)
+
+
+#+END_SRC 
+
