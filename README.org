@@ -60,7 +60,7 @@ Now load and activate the packages like shown below.
 (global-set-key (kbd "C-s") 'helm-swoop)
 #+END_SRC
 
-** Consistent minibuffer like appearance
+** Appearance
 
 The following snippet will configure helm to always pop up at the bottom.
 #+BEGIN_SRC emacs-lisp
@@ -128,6 +128,37 @@ and hide the mode-lines above.
 (advice-add 'helm-keyboard-quit :around #'helm-keyboard-quit-advice)
 #+END_SRC
 
+The header lines for the sources are only useful if there are more then a single source.
+The following snippet will hide the header line if there is only one.
+[[http://www.reddit.com/r/emacs/comments/2z7nbv/lean_helm_window/][Reference]]
+#+BEGIN_SRC emacs-lisp
+(setq helm-display-header-line nil)
+
+(defvar helm-source-header-default-background (face-attribute 'helm-source-header :background))
+(defvar helm-source-header-default-foreground (face-attribute 'helm-source-header :foreground))
+(defvar helm-source-header-default-box (face-attribute 'helm-source-header :box))
+
+(defun helm-toggle-header-line ()
+  (if (> (length helm-sources) 1)
+      (set-face-attribute 'helm-source-header
+                          nil
+                          :foreground helm-source-header-default-foreground
+                          :background helm-source-header-default-background
+                          :box helm-source-header-default-box
+                          :height 1.0)
+    (set-face-attribute 'helm-source-header
+                        nil
+                        :foreground (face-attribute 'helm-selection :background)
+                        :background (face-attribute 'helm-selection :background)
+                        :box nil
+                        :height 0.1)))
+
+
+(add-hook 'helm-before-initialize-hook 'helm-toggle-header-line)
+
+#+END_SRC
+
+
 And finally this will hide the minibuffer while helm is active
 
 [[https://www.reddit.com/r/emacs/comments/3asbyn/new_and_very_useful_helm_feature_enter_search/][Reference]]
@@ -145,7 +176,7 @@ And finally this will hide the minibuffer while helm is active
 
 #+END_SRC
 
-** Better File Navigation
+** File Navigation
 
 The following snippet will reconfigure the behaviour of keys in helm
 file navigation buffers.
