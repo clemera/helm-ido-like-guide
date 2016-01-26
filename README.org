@@ -1,17 +1,20 @@
-* Ido2Helm
+* Better Helm
 :PROPERTIES:
-:SUMMARY: Get an ido like interface with the power of helm.
+:SUMMARY: Opinionated configuration guide for the helm package of Emacs
 :END:
 
-This guide is intended for people which used ido in the past and want helm to
-behave more like ido (ido + flx-ido + ido-vertical-mode). Of course you don't have 
-to be a former ido user, this guide is hopefully useful for others as well.
-
+This guide was intended for people which used ido in the past and want helm to
+behave more like ido (ido + flx-ido + ido-vertical-mode). Because now there are many other
+improvements which are useful in general and not only for former ido users
+ it is has become more like a general guide for people who don't like the default interface 
+of helm.
+ 
 For now the configuration snippets inlcude the following
 features:
 
 - Always pop up at the bottom
 - Input in header line
+- Show helm source headers only when necessary
 - No mode-line above the helm buffer.
 - Flx support 
 - DEL and RETURN for file navigation like in ido
