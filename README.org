@@ -127,6 +127,23 @@ and hide the mode-lines above.
 (advice-add 'helm-keyboard-quit :around #'helm-keyboard-quit-advice)
 #+END_SRC
 
+And finally this will hide the minibuffer while helm is active
+
+[[https://www.reddit.com/r/emacs/comments/3asbyn/new_and_very_useful_helm_feature_enter_search/][Reference]]
+
+#+BEGIN_SRC emacs-lisp
+(defun helm-hide-minibuffer-maybe ()
+  (when (with-helm-buffer helm-echo-input-in-header-line)
+    (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+      (overlay-put ov 'window (selected-window))
+      (overlay-put ov 'face (let ((bg-color (face-background 'default nil)))
+                              `(:background ,bg-color :foreground ,bg-color)))
+      (setq-local cursor-type nil))))
+
+(add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
+
+#+END_SRC
+
 ** Better File Navigation
 
 The following snippet will reconfigure the behaviour of keys in helm
