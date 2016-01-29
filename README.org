@@ -4,8 +4,8 @@
 :END:
 
 This guide was intended for people which used ido in the past and wanted helm to
-behave more like ido (ido + flx-ido + ido-vertical-mode + smex). Because this guide inlcudes
-many other snippets now which I consider useful in general it has become more of collection
+behave more like ido (ido + flx-ido + ido-vertical-mode + smex). Now this guide inlcudes
+many snippets which are useful in general and has become more of collection
 of configuration tips to improve helms default interface and is not targeted to former ido users only. 
  
 For now the configuration snippets inlcude the following
@@ -14,8 +14,8 @@ features:
 - Always pop up at the bottom
 - Input in header line
 - Show helm source headers only when necessary
-- No mode-line above the helm buffer.
-- Flx support with gc adjustment to improve speed. 
+- No mode-lines above the helm buffer
+- Flx support with gc adjustment to improve speed.
 - DEL and RETURN for file navigation like in ido
 - Remove the dots for current and parent directory in helm file navigation
 - Smex support for helm-M-x
@@ -35,7 +35,7 @@ the guide into parts where each snippet should be independent of others, so you 
 
 ** Installing helm and friends
 
-If you haven't already go and install helm, helm-swoop and helm-flx. You can do it
+If you haven't already go and install helm, helm-swoop, helm-flx and smex. You can do it
 quickly by evaluating the following snippet.
  
 #+BEGIN_SRC emacs-lisp
@@ -46,7 +46,7 @@ quickly by evaluating the following snippet.
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
   (package-refresh-contents)
   (mapcar #'(lambda (package) (unless (package-installed-p package) (package-install package)))
-          '(helm helm-swoop helm-flx))
+          '(helm helm-swoop helm-flx smex))
 #+END_SRC
 
 
