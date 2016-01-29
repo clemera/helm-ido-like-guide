@@ -4,7 +4,7 @@
 :END:
 
 This guide was intended for people which used ido in the past and wanted helm to
-behave more like ido (ido + flx-ido + ido-vertical-mode). Because this guide inlcudes
+behave more like ido (ido + flx-ido + ido-vertical-mode + smex). Because this guide inlcudes
 many other snippets now which I consider useful in general it has become more of collection
 of configuration tips to improve helms default interface and is not targeted to former ido users only. 
  
@@ -18,7 +18,7 @@ features:
 - Flx support with gc adjustment to improve speed. 
 - DEL and RETURN for file navigation like in ido
 - Remove the dots for current and parent directory in helm file navigation
-
+- Smex support for helm-M-x
 
 
 *NOTE*
@@ -56,11 +56,6 @@ Now load and activate the packages like shown below.
 (require 'helm-config)
 (helm-mode 1)
 (helm-flx-mode 1)
-
-;; Change this keybindings to whatever you like
-(global-set-key (kbd "M-x") 'helm-M-x)
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
-(global-set-key (kbd "C-s") 'helm-swoop)
 #+END_SRC
 
 ** Appearance
@@ -290,4 +285,56 @@ the following.
 
 
 #+END_SRC 
+
+** Helm Smex
+After putting the following snippet in your init you can use smex in conjunction with helm.
+
+[[https://github.com/bmag/spacemacs-config/blob/65d4bf31f30aae8553f57553f0936b4237ac1bb8/private/helm-smex/packages.el][Reference]]
+
+#+BEGIN_SRC emacs-lisp
+(require 'smex)
+(smex-initialize)
+
+(defvar helm-smex-source--candidates nil)
+(defvar helm-smex-source--cache (make-hash-table :test #'eq))
+
+(defun helm-smex//score-no-cache (command)
+  (or (cdr (car (cl-member (symbol-name command) smex-cache
+                           :test #'string=)))
+      0))
+
+(defun helm-smex//score (command)
+  (or (gethash command helm-smex-source--cache)
+      (puthash command (helm-smex//score-no-cache command)
+               helm-smex-source--cache)))
+
+(defun helm-smex//compare-candidates (command-name1 command-name2)
+  (> (helm-smex//score (intern-soft command-name1))
+     (helm-smex//score (intern-soft command-name2))))
+
+(defclass helm-smex-source (helm-source-sync)
+  ((init
+    :initform (lambda ()
+                (setq helm-smex-source--candidates
+                      (smex-convert-for-ido smex-cache))
+                (clrhash helm-smex-source--cache)))
+   (candidates :initform 'helm-smex-source--candidates)
+   (match :initform 'helm-fuzzy-match)
+   (filtered-candidates-transformer
+    :initform (lambda (candidates source)
+                (sort candidates #'helm-smex//compare-candidates)))
+   (action
+    :initform (lambda (command-name)
+                (unwind-protect
+                    (execute-extended-command current-prefix-arg
+                                              command-name)
+                  (smex-rank (intern command-name)))))))
+
+(defun helm-smex/run ()
+  (interactive)
+  (helm :buffer "*helm-smex*"
+        :sources (helm-make-source "Smex" helm-smex-source)))
+
+#+END_SRC
+
 
