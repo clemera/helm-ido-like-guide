@@ -192,7 +192,7 @@ it is one.
       (call-interactively 'helm-find-files-up-one-level)
     (delete-backward-char 1)))
 
-(define-key helm-read-file-map (kbd "<backsqpace>") 'dwim-helm-find-files-up-one-level-maybe)
+(define-key helm-read-file-map (kbd "<backspace>") 'dwim-helm-find-files-up-one-level-maybe)
 (define-key helm-read-file-map (kbd "DEL") 'dwim-helm-find-files-up-one-level-maybe)
 (define-key helm-find-files-map (kbd "<backspace>") 'dwim-helm-find-files-up-one-level-maybe)
 (define-key helm-find-files-map (kbd "DEL") 'dwim-helm-find-files-up-one-level-maybe)
