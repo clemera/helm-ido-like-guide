@@ -35,7 +35,7 @@ the guide into parts where each snippet should be independent of others, so you 
 
 ** Installing helm and friends
 
-If you haven't already go and install helm, helm-swoop, helm-flx and smex. You can do it
+If you haven't already go and install helm, helm-swoop, helm-flx, helm-fuzzier and smex. You can do it
 quickly by evaluating the following snippet.
  
 #+BEGIN_SRC emacs-lisp
@@ -46,7 +46,7 @@ quickly by evaluating the following snippet.
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
   (package-refresh-contents)
   (mapcar #'(lambda (package) (unless (package-installed-p package) (package-install package)))
-          '(helm helm-swoop helm-flx smex))
+          '(helm helm-swoop helm-flx helm-fuzzier smex))
 #+END_SRC
 
 
@@ -56,6 +56,7 @@ Now load and activate the packages like shown below.
 (require 'helm-config)
 (helm-mode 1)
 (helm-flx-mode 1)
+(helm-fuzzier-mode 1)
 #+END_SRC
 
 ** Appearance
