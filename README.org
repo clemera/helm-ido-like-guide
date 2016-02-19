@@ -219,38 +219,24 @@ And this snippet will remove the dots in helm file navigation
 [[https://github.com/TheBB/spacemacs-layers/tree/master/no-dots][Reference]]
 
 #+BEGIN_SRC emacs-lisp
+  (require 'cl-lib)
 
-(require 'cl-lib)
-
-(with-eval-after-load 'helm-files
+  (with-eval-after-load 'helm-files
     (advice-add 'helm-ff-filter-candidate-one-by-one
-                :around 'no-dots/helm-ff-filter-candidate-one-by-one)
-    (advice-add 'helm-find-files-up-one-level
-                :around 'no-dots/helm-find-files-up-one-level))
+                :before-while 'no-dots-display-file-p))
 
-(defvar no-dots-whitelist
-  '()
-  "List of helm buffers in which to show dots.")
+  (defvar no-dots-whitelist nil
+    "List of helm buffers in which to show dots.")
 
-(defun no-dots/whitelistedp ()
-  (member (with-helm-buffer (buffer-name)) no-dots-whitelist))
+  (defun no-dots-in-white-listed-helm-buffer-p ()
+    (member helm-buffer no-dots-whitelist))
 
-(defun no-dots/helm-ff-filter-candidate-one-by-one (fcn file)
-  (when (or (no-dots/whitelistedp)
-            (not (string-match "\\(?:/\\|\\`\\)\\.\\{1,2\\}\\'" file)))
-    (funcall fcn file)))
-
-(defun no-dots/helm-file-completion-source-p (&rest args) t)
-
-(defun no-dots/helm-find-files-up-one-level (fcn &rest args)
-  (prog2
-      (advice-add 'helm-file-completion-source-p
-                  :around 'no-dots/helm-file-completion-source-p)
-      (apply fcn args)
-    (advice-remove 'helm-file-completion-source-p
-                   'no-dots/helm-file-completion-source-p)))
-
-
+  (defun no-dots-display-file-p (file)
+    ;; in a whitelisted buffer display the file regardless of its name
+    (or (no-dots-in-white-listed-helm-buffer-p)
+        ;; not in a whitelisted buffer display all files
+        ;; which does not end with /. /..
+        (not (string-match "\\(?:/\\|\\`\\)\\.\\{1,2\\}\\'" file))))
 #+END_SRC
 
 ** Improve Flx support
@@ -287,54 +273,118 @@ the following.
 #+END_SRC 
 
 ** Helm Smex
-After putting the following snippet in your init you can use smex in conjunction with helm.
+
+With the following you get helm smex with flx matching. This means if you type "co"
+it will match company-oddmuse as the first candidate. But if you choose customize-option
+instead it will rank that command higher and next time you type "co" customize-option will be
+the first listed match. Nice!  
+
+For the following I did some plumbing with code from various sources but it works well for me
+and I haven't encountered any performance issues. 
+Let me know if you have suggestions for improvements, I'm always happy to learn.
 
 [[https://github.com/bmag/spacemacs-config/blob/65d4bf31f30aae8553f57553f0936b4237ac1bb8/private/helm-smex/packages.el][Reference]]
+[[https://github.com/wasamasa/dotemacs/blob/31595180d9d4cb3ee806b74681b0811bcb323618/unpublished/helm-smex.el][Reference]]
+[[https://github.com/lewang/flx/blob/10db5313698068685ecc9bacee86973e53115e10/misc/flx-helm-demo.el][Reference]]
 
 #+BEGIN_SRC emacs-lisp
-(require 'smex)
-(smex-initialize)
+  (require 'smex)
+  (require 'flx)
 
-(defvar helm-smex-source--candidates nil)
-(defvar helm-smex-source--cache (make-hash-table :test #'eq))
+  (add-hook 'after-init-hook (lambda () (smex-initialize)) t)
 
-(defun helm-smex//score-no-cache (command)
-  (or (cdr (car (cl-member (symbol-name command) smex-cache
-                           :test #'string=)))
-      0))
+  (defun helm-smex-items ()
+    (smex-convert-for-ido smex-cache))
 
-(defun helm-smex//score (command)
-  (or (gethash command helm-smex-source--cache)
-      (puthash command (helm-smex//score-no-cache command)
-               helm-smex-source--cache)))
 
-(defun helm-smex//compare-candidates (command-name1 command-name2)
-  (> (helm-smex//score (intern-soft command-name1))
-     (helm-smex//score (intern-soft command-name2))))
+  (defun helm-smex-execute-command (command-name)
+    (unwind-protect
+        (execute-extended-command helm-current-prefix-arg command-name)
+      (smex-rank (intern command-name))))
 
-(defclass helm-smex-source (helm-source-sync)
-  ((init
-    :initform (lambda ()
-                (setq helm-smex-source--candidates
-                      (smex-convert-for-ido smex-cache))
-                (clrhash helm-smex-source--cache)))
-   (candidates :initform 'helm-smex-source--candidates)
-   (match :initform 'helm-fuzzy-match)
-   (filtered-candidates-transformer
-    :initform (lambda (candidates source)
-                (sort candidates #'helm-smex//compare-candidates)))
-   (action
-    :initform (lambda (command-name)
-                (unwind-protect
-                    (execute-extended-command current-prefix-arg
-                                              command-name)
-                  (smex-rank (intern command-name)))))))
 
-(defun helm-smex/run ()
-  (interactive)
-  (helm :buffer "*helm-smex*"
-        :sources (helm-make-source "Smex" helm-smex-source)))
+  (defvar helm-smex-source
+    '((name . "smex")
+      (candidates . helm-smex-items)
+      (volatile)
+      (match-strict identity)
+      (candidate-transformer . flx-helm-candidate-transformer)
+      (action . (("execute command" . helm-smex-execute-command)
+                 ("execute command with prefix" . helm-smex-execute-command-with-prefix)))))
 
+
+  (defun flx-helm-candidate-transformer (candidates)
+    "hairy but works"
+    (if (zerop (length helm-pattern))
+        candidates
+      (let* ((mp-3-patterns (helm-mm-3-get-patterns helm-pattern))
+             (flx-pattern (cdar mp-3-patterns))
+             (patterns (cons (cons 'identity
+                                   (mapconcat
+                                    #'regexp-quote
+                                    (split-string flx-pattern "" t)
+                                    ".*"))
+                             (cdr mp-3-patterns)))
+             res)
+
+        (setq res (loop for candidate in candidates
+                        for matched = (loop for (predicate . regexp) in patterns
+                                            always (funcall
+                                                    predicate
+                                                    (string-match regexp
+                                                                  (helm-candidate-get-display
+                                                                   candidate))))
+                        if matched
+                        collect (let ((score (flx-score candidate flx-pattern helm-flx-cache)))
+                                  (cons (copy-sequence candidate)
+                                        (cons candidate
+                                              score)))))
+
+        (setq res (sort res
+                        (lambda (a b)
+                          (> (caddr a) (caddr b)))))
+        (helm-smex-flx-highlight-and-format res)
+        res)))
+
+
+
+  (defun helm-smex-flx-highlight-and-format (res)
+    (cl-loop for item in res
+             for score = (cddr item)
+             do
+             (progn
+               (if (string-match-p " " helm-pattern)
+                   (cl-loop with pattern = (split-string helm-pattern)
+                            for p in pattern
+                            do (when (string-match (substring-no-properties p)
+                                                   (substring-no-properties (car item)))
+                                 (put-text-property
+                                  (match-beginning 0) (match-end 0) 'face 'helm-match
+                                  (car item))))
+                 (setcar item (flx-propertize (car item) score)))
+               (setcdr item (cadr item)))))
+
+
+
+  (defun helm-smex/run (arg)
+    (interactive "P")
+    (if arg
+        (smex-rebuild-cache))
+    (let ((helm--mode-line-display-prefarg t))
+      (helm :sources 'helm-smex-source
+            :buffer "*helm-smex*")))
+
+
+
+  (defun helm-smex-execute-command-with-prefix (command-name)
+    (unwind-protect
+        (let ((helm-current-prefix-arg (list 4)))
+          (execute-extended-command helm-current-prefix-arg command-name))
+      (smex-rank (intern command-name))))
 #+END_SRC
 
-
+I recommend using the following keybindings 
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-<return>") 'helm-smex/run)
+  (global-set-key (kbd "M-<return>") 'helm-resume)
+#+END_SRC
