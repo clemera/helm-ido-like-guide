@@ -31,7 +31,6 @@ the guide into parts where each snippet should be independent of others, so you 
 ** Screenshots
 
 [[./screenshot.png]]
-[[./screenshot2.png]]
 
 ** Installing helm and friends
 
