@@ -31,7 +31,7 @@ the guide into parts where each snippet should be independent of others, so you 
 ** Screenshots
 
 [[./screenshot.png]]
-Theme: [[hc-zenburn][https://github.com/edran/hc-zenburn-emacs]] with some adjustments.
+Theme: [[https://github.com/edran/hc-zenburn-emacs][hc-zenburn]] with some adjustments.
 
 ** Installing helm and friends
 
