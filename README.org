@@ -389,3 +389,58 @@ I recommend using the following keybindings
   (global-set-key (kbd "C-<return>") 'helm-smex/run)
   (global-set-key (kbd "M-<return>") 'helm-resume)
 #+END_SRC
+** Helm Adaptive
+
+This will offer last choosen candidates first for more sources, with support for flx.
+The following code uses the dash libary, which you can install from melpa if needed.
+
+I only use it to remember =describe-function= and =describe-variable=, if you want
+to use it for other sources add them like shown below.
+
+[[https://github.com/emacs-helm/helm/issues/1228][Reference]]
+
+#+BEGIN_SRC emacs-lisp
+(with-eval-after-load 'helm-adaptive
+  (defcustom helm-adaptive-enabled-sources  '()
+    "List of Helm Source names for which helm-adaptive will remember history."
+    :type '(repeat string)
+    :group 'helm-adapt)
+
+  ;; Remember history for these sources add more sources here if you like
+  (add-to-list 'helm-adaptive-enabled-sources "describe-function")
+  (add-to-list 'helm-adaptive-enabled-sources "describe-variable")
+
+  ;; Clobber helm's implementation
+(defun helm-adapt-use-adaptive-p (&optional source-name)
+  "Return current source only if it use adaptive history, nil otherwise."
+  (when helm-adaptive-mode
+    (let* ((source (or source-name (helm-get-current-source)))
+           (adapt-source (when (listp source)
+                           (or (assoc-default 'filtered-candidate-transformer
+                                              (assoc (assoc-default 'type source)
+                                                     helm-type-attributes))
+                               (assoc-default 'candidate-transformer
+                                              (assoc (assoc-default 'type source)
+                                                     helm-type-attributes))
+                               (assoc-default 'filtered-candidate-transformer source)
+                               (assoc-default 'candidate-transformer source)))))
+      (cond
+        ((member (cdr (assoc 'name source)) helm-adaptive-enabled-sources)
+         source)
+        ((listp adapt-source)
+         (and (member 'helm-adaptive-sort adapt-source) source))
+        ((eq adapt-source 'helm-adaptive-sort)         
+         source)))))
+
+  (require 'dash)
+  (setq helm-fuzzy-sort-fn
+        (lambda (candidates source &optional use-real)
+
+          (-> candidates
+              (helm-flx-fuzzy-matching-sort source use-real)
+              (helm-adaptive-sort source)
+              ))
+        helm-fuzzy-matching-highlight-fn #'helm-flx-fuzzy-highlight-match))
+
+(helm-adaptive-mode 1)
+#+END_SRC
