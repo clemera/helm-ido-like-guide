@@ -19,7 +19,7 @@ features:
 - DEL and RETURN for file navigation like in ido
 - Remove the dots for current and parent directory in helm file navigation
 - Smex support for =helm-M-x= to remember choosen commands
-- Remember last candidates for more sources with =helm-adaptive=
+- Remember last candidates for more sources with =helm-adaptive= (Not recommended for now)
 
 *NOTE*
 
