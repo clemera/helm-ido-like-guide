@@ -50,9 +50,12 @@ quickly by evaluating the following snippet.
 #+END_SRC
 
 
-Now load and activate the packages like shown below.
+Now either follow this guide or just get the helm-better-defaults.el file and
+require it in your init file.
 
-#+BEGIN_SRC emacs-lisp
+** Load helm plus extensions
+
+#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
 (require 'helm-config)
 (helm-mode 1)
 (helm-flx-mode 1)
@@ -62,7 +65,7 @@ Now load and activate the packages like shown below.
 ** Appearance
 
 The following snippet will configure helm to always pop up at the bottom.
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
 (setq helm-split-window-in-side-p t)
 
 (add-to-list 'display-buffer-alist
@@ -82,7 +85,7 @@ and hide the mode-lines above.
 
 [[http://emacs.stackexchange.com/a/15250/9198][Reference]]
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
 (setq helm-echo-input-in-header-line t)
 
 (defvar bottom-buffers nil
@@ -130,7 +133,7 @@ and hide the mode-lines above.
 The header lines for the sources are only useful if there are more then a single source.
 The following snippet will hide the header line if there is only one.
 [[http://www.reddit.com/r/emacs/comments/2z7nbv/lean_helm_window/][Reference]]
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
 (setq helm-display-header-line nil)
 
 (defvar helm-source-header-default-background (face-attribute 'helm-source-header :background))
@@ -162,7 +165,7 @@ And finally this will hide the minibuffer while helm is active
 
 [[https://www.reddit.com/r/emacs/comments/3asbyn/new_and_very_useful_helm_feature_enter_search/][Reference]]
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
 (defun helm-hide-minibuffer-maybe ()
   (when (with-helm-buffer helm-echo-input-in-header-line)
     (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
@@ -186,7 +189,7 @@ it is one.
 
 [[http://emacs.stackexchange.com/a/7896/9198][Reference]]
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
 (defun dwim-helm-find-files-up-one-level-maybe ()
   (interactive)
   (if (looking-back "/" 1)
@@ -219,7 +222,7 @@ And this snippet will remove the dots in helm file navigation
 
 [[https://github.com/TheBB/spacemacs-layers/tree/master/no-dots][Reference]]
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
   (require 'cl-lib)
 
   (with-eval-after-load 'helm-files
@@ -246,7 +249,7 @@ The following snippet will advice the helm source function to enable the flx fuz
 
 [[https://github.com/emacs-helm/helm/issues/145#issuecomment-151953381][Reference]]
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
 (defun my-helm-make-source (f &rest args)
   (nconc args '(:fuzzy-match t))
   (apply f args))
@@ -259,7 +262,7 @@ the following.
 
 [[http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/][Reference]]
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
 ;; garbage collections
 (defun my-minibuffer-setup-hook ()
   (setq gc-cons-threshold most-positive-fixnum))
@@ -288,7 +291,7 @@ Let me know if you have suggestions for improvements, I'm always happy to learn.
 [[https://github.com/wasamasa/dotemacs/blob/31595180d9d4cb3ee806b74681b0811bcb323618/unpublished/helm-smex.el][Reference]]
 [[https://github.com/lewang/flx/blob/10db5313698068685ecc9bacee86973e53115e10/misc/flx-helm-demo.el][Reference]]
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
   (require 'smex)
   (require 'flx)
 
@@ -395,6 +398,9 @@ This will offer last choosen candidates first for more sources, with support for
 
 I only use it to remember =describe-function= and =describe-variable=, if you want
 to use it for other sources add them like shown below.
+
+Warning: After some usage it stopped working correctly and sorted the results badly.
+I can live without it, but maybe I will try to fix it later.
 
 [[https://github.com/emacs-helm/helm/issues/1228][Reference]]
 
