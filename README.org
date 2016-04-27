@@ -1,4 +1,4 @@
-* Better Helm
+* Better Helm Defaults
 :PROPERTIES:
 :SUMMARY: Configuration guide for the helm package of Emacs
 :END:
