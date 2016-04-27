@@ -23,7 +23,7 @@ features:
 
 *NOTE*
 
-This is work in progress. If you encounter any problems let me know.
+This is a work in progress. If you encounter any problems let me know.
 Some of this is my own work, but most is based on work of others that I summarized in this tutorial.
 Everyone has his own opinions what is considered an improvement because of that I have splitted 
 the guide into parts where each snippet should be independent of others, so you can just pick what you like.
