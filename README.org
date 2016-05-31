@@ -6,12 +6,13 @@
 This guide was intended for people which used ido in the past and wanted helm to
 behave more like ido (ido + flx-ido + ido-vertical-mode + smex). Now this guide inlcudes
 many snippets which are useful for helm usage in general and has become more of collection
-of configuration tips to improve helms default interface and is not targeted to former ido users only. 
+of configuration tips and recommended packages to improve helms default interface.
  
-For now the configuration snippets inlcude the following
-features:
+For now the configuration snippets and packages will provide the following features for you:
+
 
 - Always pop up at the bottom
+- Nice search through an overview of matches with helm-swoop
 - Input in header line and hide the minibuffer
 - Show helm source headers only when necessary
 - No mode-lines above the helm buffer
