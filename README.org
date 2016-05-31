@@ -19,7 +19,7 @@ For now the configuration snippets and packages will provide the following featu
 - Flx support with gc adjustment to improve speed.
 - DEL and RETURN for file navigation like in ido
 - Remove the dots for current and parent directory in helm file navigation
-- Smex support for =helm-M-x= to remember choosen commands
+- Smex support for =helm-M-x= , to adjust search results for recent and most frequent used commands
 - Remember last candidates for more sources with =helm-adaptive= (Not recommended for now)
 
 *NOTE*
