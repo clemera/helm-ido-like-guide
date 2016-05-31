@@ -3,6 +3,10 @@
 (helm-mode 1)
 (helm-flx-mode 1)
 (helm-fuzzier-mode 1)
+(require 'helm-smex)
+;; bind keys for helm-smex here
+;;(global-set-key [remap execute-extended-command] #'helm-smex)
+;;(global-set-key (kbd "M-X") #'helm-smex-major-mode-commands)
 
 (setq helm-split-window-in-side-p t)
 
