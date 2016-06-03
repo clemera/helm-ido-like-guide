@@ -338,3 +338,12 @@ I can live without it, but maybe I will try to fix it later.
 
 (helm-adaptive-mode 1)
 #+END_SRC
+
+** Last Steps
+
+This is for the tangled file and the option to load the code 
+provided by this guide as a whole in your init file.
+
+#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
+(provide 'helm-better-defaults.el)
+#+END_SRC

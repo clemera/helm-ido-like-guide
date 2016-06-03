@@ -4,9 +4,6 @@
 (helm-flx-mode 1)
 (helm-fuzzier-mode 1)
 (require 'helm-smex)
-;; bind keys for helm-smex here
-;;(global-set-key [remap execute-extended-command] #'helm-smex)
-;;(global-set-key (kbd "M-X") #'helm-smex-major-mode-commands)
 
 (setq helm-split-window-in-side-p t)
 
@@ -17,10 +14,12 @@
                (window-height . 0.4)))
 
 (setq helm-swoop-split-with-multiple-windows nil
-        helm-swoop-split-direction 'split-window-vertically
-        helm-swoop-split-window-function 'helm-default-display-buffer)
+      helm-swoop-split-direction 'split-window-vertically
+      helm-swoop-split-window-function 'helm-default-display-buffer)
 
 (setq helm-echo-input-in-header-line t)
+;; this function is a helm built in
+(add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
 
 (defvar bottom-buffers nil
   "List of bottom buffers before helm session.
@@ -87,16 +86,6 @@
 
 (add-hook 'helm-before-initialize-hook 'helm-toggle-header-line)
 
-(defun helm-hide-minibuffer-maybe ()
-  (when (with-helm-buffer helm-echo-input-in-header-line)
-    (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
-      (overlay-put ov 'window (selected-window))
-      (overlay-put ov 'face (let ((bg-color (face-background 'default nil)))
-                              `(:background ,bg-color :foreground ,bg-color)))
-      (setq-local cursor-type nil))))
-
-(add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
-
 (defun dwim-helm-find-files-up-one-level-maybe ()
   (interactive)
   (if (looking-back "/" 1)
@@ -158,3 +147,5 @@
 
 (add-hook 'minibuffer-setup-hook #'my-minibuffer-setup-hook)
 (add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook)
+
+(provide 'helm-better-defaults.el)
