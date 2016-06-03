@@ -76,6 +76,7 @@ Now you can bind keys for the helm-smex commands:
 ** Appearance
 
 The following snippet will configure helm to always pop up at the bottom.
+
 #+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
 (setq helm-split-window-in-side-p t)
 
@@ -86,19 +87,27 @@ The following snippet will configure helm to always pop up at the bottom.
                (window-height . 0.4)))
 
 (setq helm-swoop-split-with-multiple-windows nil
-        helm-swoop-split-direction 'split-window-vertically
-        helm-swoop-split-window-function 'helm-default-display-buffer)
+      helm-swoop-split-direction 'split-window-vertically
+      helm-swoop-split-window-function 'helm-default-display-buffer)
 
 #+END_SRC
 
 The following snippet will let you provide input in the header line 
-and hide the mode-lines above.
+and hide the echo in the minibuffer.
+
+#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
+(setq helm-echo-input-in-header-line t)
+;; this function is a helm built in
+(add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
+#+END_SRC
+
+The modelines above the helm buffer are not useful and hiding them will
+make helm look nicer in my opinion, too. You can do that with the following
+code.
 
 [[http://emacs.stackexchange.com/a/15250/9198][Reference]]
 
 #+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
-(setq helm-echo-input-in-header-line t)
-
 (defvar bottom-buffers nil
   "List of bottom buffers before helm session.
     Its element is a pair of `buffer-name' and `mode-line-format'.")
@@ -143,7 +152,9 @@ and hide the mode-lines above.
 
 The header lines for the sources are only useful if there are more then a single source.
 The following snippet will hide the header line if there is only one.
+
 [[http://www.reddit.com/r/emacs/comments/2z7nbv/lean_helm_window/][Reference]]
+
 #+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
 (setq helm-display-header-line nil)
 
@@ -171,23 +182,6 @@ The following snippet will hide the header line if there is only one.
 
 #+END_SRC
 
-
-And finally this will hide the minibuffer while helm is active
-
-[[https://www.reddit.com/r/emacs/comments/3asbyn/new_and_very_useful_helm_feature_enter_search/][Reference]]
-
-#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
-(defun helm-hide-minibuffer-maybe ()
-  (when (with-helm-buffer helm-echo-input-in-header-line)
-    (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
-      (overlay-put ov 'window (selected-window))
-      (overlay-put ov 'face (let ((bg-color (face-background 'default nil)))
-                              `(:background ,bg-color :foreground ,bg-color)))
-      (setq-local cursor-type nil))))
-
-(add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
-
-#+END_SRC
 
 ** File Navigation
 
