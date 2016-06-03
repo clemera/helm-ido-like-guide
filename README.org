@@ -62,9 +62,15 @@ require it in your init file.
 (helm-flx-mode 1)
 (helm-fuzzier-mode 1)
 (require 'helm-smex)
-;; bind keys for helm-smex here
-;;(global-set-key [remap execute-extended-command] #'helm-smex)
-;;(global-set-key (kbd "M-X") #'helm-smex-major-mode-commands)
+
+
+
+#+END_SRC
+
+Now you can bind keys for the helm-smex commands:
+#+BEGIN_SRC emacs-lisp
+(global-set-key [remap execute-extended-command] #'helm-smex)
+(global-set-key (kbd "M-X") #'helm-smex-major-mode-commands)
 #+END_SRC
 
 ** Appearance
