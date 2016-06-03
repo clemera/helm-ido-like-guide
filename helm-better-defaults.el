@@ -148,4 +148,4 @@
 (add-hook 'minibuffer-setup-hook #'my-minibuffer-setup-hook)
 (add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook)
 
-(provide 'helm-better-defaults.el)
+(provide 'helm-better-defaults)
