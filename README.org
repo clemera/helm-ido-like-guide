@@ -150,6 +150,20 @@ Its element is a pair of `buffer-name' and `mode-line-format'.")
   (advice-add 'helm-keyboard-quit :around #'helm-ido-like-helm-keyboard-quit-advice))
 #+END_SRC
 
+If you like you can hide helms own mode-line as well:
+#+BEGIN_SRC emacs-lisp :tangle helm-ido-like.el
+  (defun helm-ido-like-hide-helm-modeline-1 ()
+    "Hide mode line in `helm-buffer'."
+    (with-helm-buffer
+      (setq-local mode-line-format nil)))
+
+
+  (defun helm-ido-like-hide-helm-modeline ()
+    (fset 'helm-display-mode-line #'ignore)
+    (add-hook 'helm-after-initialize-hook 'helm-ido-like-hide-helm-modeline-1))
+#+END_SRC
+
+
 The header lines for the sources are only useful if there are more then a single source.
 The following snippet will hide the header line if there is only one.
 
@@ -405,6 +419,7 @@ require the file in your init and call =(helm-ido-like)=.
   (helm-ido-like-activate-helm-modes)
   (helm-ido-like-load-ido-like-bottom-buffer)
   (helm-ido-like-hide-modelines)
+  (helm-ido-like-hide-helm-modeline)
   (helm-ido-like-header-lines-maybe)
   (helm-ido-like-load-file-nav)
   (helm-ido-like-no-dots)
