@@ -68,6 +68,16 @@ Its element is a pair of `buffer-name' and `mode-line-format'.")
   (add-hook 'helm-cleanup-hook #'helm-ido-like-bottom-buffers-show-mode-line)
   (advice-add 'helm-keyboard-quit :around #'helm-ido-like-helm-keyboard-quit-advice))
 
+(defun helm-ido-like-hide-helm-modeline-1 ()
+  "Hide mode line in `helm-buffer'."
+  (with-helm-buffer
+    (setq-local mode-line-format nil)))
+
+
+(defun helm-ido-like-hide-helm-modeline ()
+  (fset 'helm-display-mode-line #'ignore)
+  (add-hook 'helm-after-initialize-hook 'helm-ido-like-hide-helm-modeline-1))
+
 (defvar helm-ido-like-source-header-default-background nil)
 (defvar helm-ido-like-source-header-default-foreground nil)
 (defvar helm-ido-like-source-header-default-box nil)
@@ -205,6 +215,7 @@ Its element is a pair of `buffer-name' and `mode-line-format'.")
   (helm-ido-like-activate-helm-modes)
   (helm-ido-like-load-ido-like-bottom-buffer)
   (helm-ido-like-hide-modelines)
+  (helm-ido-like-hide-helm-modeline)
   (helm-ido-like-header-lines-maybe)
   (helm-ido-like-load-file-nav)
   (helm-ido-like-no-dots)
