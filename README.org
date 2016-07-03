@@ -18,7 +18,7 @@ For now the configuration snippets and packages will provide the following featu
 - No mode-lines above the helm buffer
 - Flx support with gc adjustment to improve speed.
 - DEL and RETURN for file navigation like in ido
-- Remove the dots for current and parent directory in helm file navigation
+- Remove the dots for current and parent directory in helm file navigation in non directory selections
 - Smex support for =helm-M-x= , to adjust search results for recent and most frequent used commands
 - Remember last candidates for more sources with =helm-adaptive= (Not recommended for now)
 
@@ -54,20 +54,17 @@ quickly by evaluating the following snippet.
 Now either follow this guide or just get the helm-better-defaults.el file and
 require it in your init file.
 
-** Load helm plus extensions
+** Initial setup
 
-#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
-(require 'helm-config)
-(helm-mode 1)
-(helm-flx-mode 1)
-(helm-fuzzier-mode 1)
-(require 'helm-smex)
-
-
-
+#+BEGIN_SRC emacs-lisp :tangle helm-ido-like.el
+(defun helm-ido-like-activate-helm-modes ()
+  (require 'helm-config)
+  (helm-mode 1)
+  (helm-flx-mode 1)
+  (helm-fuzzier-mode 1))
 #+END_SRC
 
-Now you can bind keys for the helm-smex commands:
+Now don't forget to bind keys for the helm-smex commands:
 #+BEGIN_SRC emacs-lisp
 (global-set-key [remap execute-extended-command] #'helm-smex)
 (global-set-key (kbd "M-X") #'helm-smex-major-mode-commands)
@@ -77,29 +74,31 @@ Now you can bind keys for the helm-smex commands:
 
 The following snippet will configure helm to always pop up at the bottom.
 
-#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
-(setq helm-split-window-in-side-p t)
+#+BEGIN_SRC emacs-lisp :tangle helm-ido-like.el
+(defun helm-ido-like-load-ido-like-bottom-buffer ()
+  ;; popup helm-buffer at the bottom
+  (setq helm-split-window-in-side-p t)
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*helm.*\\*\\'"
+                 (display-buffer-in-side-window)
+                 (window-height . 0.4)))
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*helm help\\*\\'"
+                 (display-buffer-pop-up-window)))
 
-(add-to-list 'display-buffer-alist
-             '("\\`\\*helm.*\\*\\'"
-               (display-buffer-in-side-window)
-               (inhibit-same-window . t)
-               (window-height . 0.4)))
-
-(setq helm-swoop-split-with-multiple-windows nil
+  ;; same for helm swoop
+  (setq helm-swoop-split-with-multiple-windows nil
       helm-swoop-split-direction 'split-window-vertically
       helm-swoop-split-window-function 'helm-default-display-buffer)
+  ;; dont display the header line
+  (setq helm-display-header-line nil)
+  ;; input in header line
+  (setq helm-echo-input-in-header-line t)
+  (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe))
+
 
 #+END_SRC
 
-The following snippet will let you provide input in the header line 
-and hide the echo in the minibuffer.
-
-#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
-(setq helm-echo-input-in-header-line t)
-;; this function is a helm built in
-(add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
-#+END_SRC
 
 The modelines above the helm buffer are not useful and hiding them will
 make helm look nicer in my opinion, too. You can do that with the following
@@ -107,47 +106,48 @@ code.
 
 [[http://emacs.stackexchange.com/a/15250/9198][Reference]]
 
-#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
-(defvar bottom-buffers nil
-  "List of bottom buffers before helm session.
-    Its element is a pair of `buffer-name' and `mode-line-format'.")
+#+BEGIN_SRC emacs-lisp :tangle helm-ido-like.el
+(defvar helm-ido-like-bottom-buffers nil
+  "List of bottom buffers before helm session started.
+Its element is a pair of `buffer-name' and `mode-line-format'.")
 
-(defun bottom-buffers-init ()
+
+(defun helm-ido-like-bottom-buffers-init ()
   (setq-local mode-line-format (default-value 'mode-line-format))
-  (setq bottom-buffers
+  (setq helm-ido-like-bottom-buffers
         (cl-loop for w in (window-list)
                  when (window-at-side-p w 'bottom)
                  collect (with-current-buffer (window-buffer w)
                            (cons (buffer-name) mode-line-format)))))
 
 
-(defun bottom-buffers-hide-mode-line ()
-  (setq-default cursor-in-non-selected-windows nil)
+(defun helm-ido-like-bottom-buffers-hide-mode-line ()
   (mapc (lambda (elt)
           (with-current-buffer (car elt)
             (setq-local mode-line-format nil)))
-        bottom-buffers))
+        helm-ido-like-bottom-buffers))
 
 
-(defun bottom-buffers-show-mode-line ()
-  (setq-default cursor-in-non-selected-windows t)
-  (when bottom-buffers
+(defun helm-ido-like-bottom-buffers-show-mode-line ()
+  (when helm-ido-like-bottom-buffers
     (mapc (lambda (elt)
             (with-current-buffer (car elt)
               (setq-local mode-line-format (cdr elt))))
-          bottom-buffers)
-    (setq bottom-buffers nil)))
+          helm-ido-like-bottom-buffers)
+    (setq helm-ido-like-bottom-buffers nil)))
 
-(defun helm-keyboard-quit-advice (orig-func &rest args)
-  (bottom-buffers-show-mode-line)
+
+(defun helm-ido-like-helm-keyboard-quit-advice (orig-func &rest args)
+  (helm-ido-like-bottom-buffers-show-mode-line)
   (apply orig-func args))
 
-
-(add-hook 'helm-before-initialize-hook #'bottom-buffers-init)
-(add-hook 'helm-after-initialize-hook #'bottom-buffers-hide-mode-line)
-(add-hook 'helm-exit-minibuffer-hook #'bottom-buffers-show-mode-line)
-(add-hook 'helm-cleanup-hook #'bottom-buffers-show-mode-line)
-(advice-add 'helm-keyboard-quit :around #'helm-keyboard-quit-advice)
+(defun helm-ido-like-hide-modelines ()
+  ;; hide The Modelines while Helm is active
+  (add-hook 'helm-before-initialize-hook #'helm-ido-like-bottom-buffers-init)
+  (add-hook 'helm-after-initialize-hook #'helm-ido-like-bottom-buffers-hide-mode-line)
+  (add-hook 'helm-exit-minibuffer-hook #'helm-ido-like-bottom-buffers-show-mode-line)
+  (add-hook 'helm-cleanup-hook #'helm-ido-like-bottom-buffers-show-mode-line)
+  (advice-add 'helm-keyboard-quit :around #'helm-ido-like-helm-keyboard-quit-advice))
 #+END_SRC
 
 The header lines for the sources are only useful if there are more then a single source.
@@ -155,20 +155,21 @@ The following snippet will hide the header line if there is only one.
 
 [[http://www.reddit.com/r/emacs/comments/2z7nbv/lean_helm_window/][Reference]]
 
-#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
-(setq helm-display-header-line nil)
+#+BEGIN_SRC emacs-lisp :tangle helm-ido-like.el
 
-(defvar helm-source-header-default-background (face-attribute 'helm-source-header :background))
-(defvar helm-source-header-default-foreground (face-attribute 'helm-source-header :foreground))
-(defvar helm-source-header-default-box (face-attribute 'helm-source-header :box))
 
-(defun helm-toggle-header-line ()
+(defvar helm-ido-like-source-header-default-background nil)
+(defvar helm-ido-like-source-header-default-foreground nil)
+(defvar helm-ido-like-source-header-default-box nil)
+
+(defun helm-ido-like-toggle-header-line ()
+  ;; Only Show Source Headers If More Than One
   (if (> (length helm-sources) 1)
       (set-face-attribute 'helm-source-header
                           nil
-                          :foreground helm-source-header-default-foreground
-                          :background helm-source-header-default-background
-                          :box helm-source-header-default-box
+                          :foreground helm-ido-like-source-header-default-foreground
+                          :background helm-ido-like-source-header-default-background
+                          :box helm-ido-like-source-header-default-box
                           :height 1.0)
     (set-face-attribute 'helm-source-header
                         nil
@@ -177,8 +178,12 @@ The following snippet will hide the header line if there is only one.
                         :box nil
                         :height 0.1)))
 
+(defun helm-ido-like-load-ui-enhancements ()
+  (setq helm-ido-like-source-header-default-background (face-attribute 'helm-source-header :background))
+  (setq helm-ido-like-source-header-default-foreground (face-attribute 'helm-source-header :foreground))
+  (setq helm-ido-like-source-header-default-box (face-attribute 'helm-source-header :box))
+  (add-hook 'helm-before-initialize-hook 'helm-ido-like-toggle-header-line))
 
-(add-hook 'helm-before-initialize-hook 'helm-toggle-header-line)
 
 #+END_SRC
 
@@ -194,92 +199,140 @@ it is one.
 
 [[http://emacs.stackexchange.com/a/7896/9198][Reference]]
 
-#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
-(defun dwim-helm-find-files-up-one-level-maybe ()
-  (interactive)
-  (if (looking-back "/" 1)
-      (call-interactively 'helm-find-files-up-one-level)
-    (delete-backward-char 1)))
-
-(define-key helm-read-file-map (kbd "<backspace>") 'dwim-helm-find-files-up-one-level-maybe)
-(define-key helm-read-file-map (kbd "DEL") 'dwim-helm-find-files-up-one-level-maybe)
-(define-key helm-find-files-map (kbd "<backspace>") 'dwim-helm-find-files-up-one-level-maybe)
-(define-key helm-find-files-map (kbd "DEL") 'dwim-helm-find-files-up-one-level-maybe)
-
-(defun dwim-helm-find-files-navigate-forward (orig-fun &rest args)
-  "Adjust how helm-execute-persistent actions behaves, depending on context"
-  (if (file-directory-p (helm-get-selection))
-      (apply orig-fun args)
-    (helm-maybe-exit-minibuffer)))
+#+BEGIN_SRC emacs-lisp :tangle helm-ido-like.el
+  (defun helm-ido-like-find-files-up-one-level-maybe ()
+    (interactive)
+    (if (looking-back "/" 1)
+        (call-interactively 'helm-find-files-up-one-level)
+      (delete-char -1)))
 
 
-(define-key helm-map (kbd "<return>") 'helm-maybe-exit-minibuffer)
-(define-key helm-map (kbd "RET") 'helm-maybe-exit-minibuffer)
-(define-key helm-find-files-map (kbd "<return>") 'helm-execute-persistent-action)
-(define-key helm-read-file-map (kbd "<return>") 'helm-execute-persistent-action)
-(define-key helm-find-files-map (kbd "RET") 'helm-execute-persistent-action)
-(define-key helm-read-file-map (kbd "RET") 'helm-execute-persistent-action)
+  (defun helm-ido-like-find-files-navigate-forward (orig-fun &rest args)
+    "Adjust how helm-execute-persistent actions behaves, depending on context."
+    (let ((sel (helm-get-selection)))
+      (if (file-directory-p sel)
+          ;; the current dir needs to work to
+          ;; be able to select directories if needed
+          (cond ((and (stringp sel)
+                      (string-match "\\.\\'" (helm-get-selection)))
+                 (helm-maybe-exit-minibuffer))
+                (t
+                 (apply orig-fun args)))
+        (helm-maybe-exit-minibuffer))))
 
-(advice-add 'helm-execute-persistent-action :around #'dwim-helm-find-files-navigate-forward)
+
+  (defun helm-ido-like-load-file-nav ()
+    (advice-add 'helm-execute-persistent-action :around #'helm-ido-like-find-files-navigate-forward)
+      ;; <return> is not bound in helm-map by default
+    (define-key helm-map (kbd "<return>") 'helm-maybe-exit-minibuffer)
+    (with-eval-after-load 'helm-files
+      (define-key helm-read-file-map (kbd "<backspace>") 'helm-ido-like-find-files-up-one-level-maybe)
+      (define-key helm-read-file-map (kbd "DEL") 'helm-ido-like-find-files-up-one-level-maybe)
+      (define-key helm-find-files-map (kbd "<backspace>") 'helm-ido-like-find-files-up-one-level-maybe)
+      (define-key helm-find-files-map (kbd "DEL") 'helm-ido-like-find-files-up-one-level-maybe)
+
+      (define-key helm-find-files-map (kbd "<return>") 'helm-execute-persistent-action)
+      (define-key helm-read-file-map (kbd "<return>") 'helm-execute-persistent-action)
+      (define-key helm-find-files-map (kbd "RET") 'helm-execute-persistent-action)
+      (define-key helm-read-file-map (kbd "RET") 'helm-execute-persistent-action)))
+
+
 #+END_SRC
 
 And this snippet will remove the dots in helm file navigation
 
 [[https://github.com/TheBB/spacemacs-layers/tree/master/no-dots][Reference]]
 
-#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
+#+BEGIN_SRC emacs-lisp :tangle helm-ido-like.el
+  
+(defvar helm-ido-like-no-dots-whitelist
+  '("*Helm file completions*")
+  "List of helm buffers in which to show dot directories.")
+
+ (defun helm-ido-like-no-dots-display-file-p (file)
+  ;; in a whitelisted buffer display all but the relative path to parent dir
+  (or (and (member helm-buffer helm-ido-like-no-dots-whitelist)
+           (not (string-match "\\(?:/\\|\\`\\)\\.\\{2\\}\\'" file)))
+      ;; in all other buffers display all files but the two relative ones
+      (not (string-match "\\(?:/\\|\\`\\)\\.\\{1,2\\}\\'" file))))
+
+
+(defun helm-ido-like-no-dots-auto-add (&rest args)
+  "Auto add buffers which want to read directory names to the whitelist."
+  (if (eq (car (last args)) 'file-directory-p)
+      (add-to-list 'helm-ido-like-no-dots-whitelist
+                   (format "*helm-mode-%s*"
+                           (helm-symbol-name
+                            (or (helm-this-command) this-command))))))
+
+
+(defun helm-ido-like-no-dots ()
   (require 'cl-lib)
-
-  (with-eval-after-load 'helm-files
-    (advice-add 'helm-ff-filter-candidate-one-by-one
-                :before-while 'no-dots-display-file-p))
-
-  (defvar no-dots-whitelist nil
-    "List of helm buffers in which to show dots.")
-
-  (defun no-dots-in-white-listed-helm-buffer-p ()
-    (member helm-buffer no-dots-whitelist))
-
-  (defun no-dots-display-file-p (file)
-    ;; in a whitelisted buffer display the file regardless of its name
-    (or (no-dots-in-white-listed-helm-buffer-p)
-        ;; not in a whitelisted buffer display all files
-        ;; which does not end with /. /..
-        (not (string-match "\\(?:/\\|\\`\\)\\.\\{1,2\\}\\'" file))))
+  (advice-add 'helm-ff-filter-candidate-one-by-one
+              :before-while 'helm-ido-like-no-dots-display-file-p)
+  (advice-add  'helm--generic-read-file-name :before 'helm-ido-like-no-dots-auto-add))
 #+END_SRC
 
 ** Improve Flx support
 
-The following snippet will advice the helm source function to enable the flx fuzzy match in all sources. 
+And you can increase flx speed (I have not benchmarked it myself) by adjusting 
+the garbage collection setting. In addition to that the following snippet  
+advices the helm source function to enable the flx fuzzy match in most sources
+but file completions(you still have fuzzy matching from helm) and async sources.  
 
+[[http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/][Reference]] 
 [[https://github.com/emacs-helm/helm/issues/145#issuecomment-151953381][Reference]]
 
-#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
-(defun my-helm-make-source (f &rest args)
-  (nconc args '(:fuzzy-match t))
-  (apply f args))
+#+BEGIN_SRC emacs-lisp :tangle helm-ido-like.el
+(defvar helm-ido-like-user-gc-setting nil)
 
-(advice-add 'helm-make-source :around 'my-helm-make-source)
-#+END_SRC
-
-And you can increase flx speed (I have not benchmarked it myself) with 
-the following.
-
-[[http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/][Reference]]
-
-#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
-;; garbage collections
-(defun my-minibuffer-setup-hook ()
+(defun helm-ido-like-higher-gc ()
+  (setq helm-ido-like-user-gc-setting gc-cons-threshold)
   (setq gc-cons-threshold most-positive-fixnum))
 
-(defun my-minibuffer-exit-hook ()
-  (setq gc-cons-threshold 800000))
 
-(add-hook 'minibuffer-setup-hook #'my-minibuffer-setup-hook)
-(add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook)
+(defun helm-ido-like-lower-gc ()
+  (setq gc-cons-threshold helm-ido-like-user-gc-setting))
+
+(defun helm-ido-like-helm-make-source (f &rest args)
+  (let ((source-type (cadr args)))
+    (unless (or (memq source-type '(helm-source-async helm-source-ffiles))
+                (eq (plist-get args :filtered-candidate-transformer)
+                    'helm-ff-sort-candidates)
+                (eq (plist-get args :persistent-action)
+                    'helm-find-files-persistent-action))
+      (nconc args '(:fuzzy-match t))))
+  (apply f args))
+
+(defun helm-ido-like-load-fuzzy-enhancements ()
+  (add-hook 'minibuffer-setup-hook #'helm-ido-like-higher-gc)
+  (add-hook 'minibuffer-exit-hook #'helm-ido-like-lower-gc)
+  (advice-add 'helm-make-source :around 'helm-ido-like-helm-make-source))
 
 
 #+END_SRC 
+
+With recent helm version there is a problem for file navigation, when
+helm-fuzzier is activated. Because of that it's better to deactivate it 
+for file completions
+
+#+BEGIN_SRC emacs-lisp :tangle helm-ido-like.el
+(defun helm-ido-like-fuzzier-deactivate (&rest _)
+  (helm-fuzzier-mode -1))
+
+
+(defun helm-ido-like-fuzzier-activate (&rest _)
+  (unless helm-fuzzier-mode
+    (helm-fuzzier-mode 1)))
+
+
+(defun helm-ido-like-fix-fuzzy-files ()
+  (add-hook 'helm-find-files-before-init-hook #'helm-ido-like-fuzzier-deactivate)
+  (advice-add 'helm--generic-read-file-name :before #'helm-ido-like-fuzzier-deactivate)
+  (add-hook 'helm-exit-minibuffer-hook #'helm-ido-like-fuzzier-activate)
+  (add-hook 'helm-cleanup-hook #'helm-ido-like-fuzzier-activate)
+  (advice-add 'helm-keyboard-quit :before #'helm-ido-like-fuzzier-activate))
+#+END_SRC
 
 ** Helm Adaptive
 
@@ -341,9 +394,23 @@ I can live without it, but maybe I will try to fix it later.
 
 ** Last Steps
 
-This is for the tangled file and the option to load the code 
-provided by this guide as a whole in your init file.
+If you want to load all configurations from this guide
+require the file in your init and call =(helm-ido-like)=.
 
-#+BEGIN_SRC emacs-lisp :tangle helm-better-defaults.el
+#+BEGIN_SRC emacs-lisp :tangle helm-ido-like.el
+;;;###autoload
+(defun helm-ido-like ()
+  "Configure and activate `helm', `helm-fuzzier' and `helm-flx'.
+See the header of this package for more details."
+  (interactive)
+  (helm-ido-like-activate-helm-modes)
+  (helm-ido-like-load-ido-like-bottom-buffer)
+  (helm-ido-like-load-ui-enhancements)
+  (helm-ido-like-load-file-nav)
+  (helm-ido-like-no-dots)
+  (helm-ido-like-load-fuzzy-enhancements)
+  (helm-ido-like-fix-fuzzy-files))
+
 (provide 'helm-better-defaults)
+;;; helm-ido-like.el ends here
 #+END_SRC
