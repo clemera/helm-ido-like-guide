@@ -88,7 +88,7 @@ Its element is a pair of `buffer-name' and `mode-line-format'.")
                         :box nil
                         :height 0.1)))
 
-(defun helm-ido-like-header-lines-maybe ()
+(defun helm-ido-like-load-ui-enhancements ()
   (setq helm-ido-like-source-header-default-background (face-attribute 'helm-source-header :background))
   (setq helm-ido-like-source-header-default-foreground (face-attribute 'helm-source-header :foreground))
   (setq helm-ido-like-source-header-default-box (face-attribute 'helm-source-header :box))
@@ -206,7 +206,7 @@ See the header of this package for more details."
   (helm-ido-like-activate-helm-modes)
   (helm-ido-like-load-ido-like-bottom-buffer)
   (helm-ido-like-hide-modelines)
-  (helm-ido-like-header-lines-maybe)
+  (helm-ido-like-load-ui-enhancements)
   (helm-ido-like-load-file-nav)
   (helm-ido-like-no-dots)
   (helm-ido-like-load-fuzzy-enhancements)
