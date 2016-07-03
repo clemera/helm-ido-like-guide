@@ -400,8 +400,7 @@ require the file in your init and call =(helm-ido-like)=.
 #+BEGIN_SRC emacs-lisp :tangle helm-ido-like.el
 ;;;###autoload
 (defun helm-ido-like ()
-  "Configure and activate `helm', `helm-fuzzier' and `helm-flx'.
-See the header of this package for more details."
+  "Configure and activate `helm', `helm-fuzzier' and `helm-flx'."
   (interactive)
   (helm-ido-like-activate-helm-modes)
   (helm-ido-like-load-ido-like-bottom-buffer)
@@ -412,6 +411,6 @@ See the header of this package for more details."
   (helm-ido-like-load-fuzzy-enhancements)
   (helm-ido-like-fix-fuzzy-files))
 
-(provide 'helm-better-defaults)
+(provide 'helm-ido-like)
 ;;; helm-ido-like.el ends here
 #+END_SRC

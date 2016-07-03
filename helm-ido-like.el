@@ -200,8 +200,7 @@ Its element is a pair of `buffer-name' and `mode-line-format'.")
 
 ;;;###autoload
 (defun helm-ido-like ()
-  "Configure and activate `helm', `helm-fuzzier' and `helm-flx'.
-See the header of this package for more details."
+  "Configure and activate `helm', `helm-fuzzier' and `helm-flx'."
   (interactive)
   (helm-ido-like-activate-helm-modes)
   (helm-ido-like-load-ido-like-bottom-buffer)
@@ -212,5 +211,5 @@ See the header of this package for more details."
   (helm-ido-like-load-fuzzy-enhancements)
   (helm-ido-like-fix-fuzzy-files))
 
-(provide 'helm-better-defaults)
+(provide 'helm-ido-like)
 ;;; helm-ido-like.el ends here
