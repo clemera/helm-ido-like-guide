@@ -1,4 +1,4 @@
-* Better Helm Defaults
+* Helm I do like
 :PROPERTIES:
 :SUMMARY: Configuration guide for the helm package of Emacs
 :END:
@@ -51,8 +51,8 @@ quickly by evaluating the following snippet.
 #+END_SRC
 
 
-Now either follow this guide or just get the helm-better-defaults.el file and
-require it in your init file.
+Now either follow this guide or jump to [[*Last%20Steps][Last Steps]] if you want see how to activate
+all the snippets provided by this guide at once.
 
 ** Initial setup
 
