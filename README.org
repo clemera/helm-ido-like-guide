@@ -203,7 +203,7 @@ The following snippet will hide the header line if there is only one.
 
 If you like you can change the background color of the helm-buffer.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle helm-ido-like.el
 (defvar helm-ido-like-bg-color (face-attribute 'default :background))
 
 (defun helm-ido-like-setup-bg-color-1 ()

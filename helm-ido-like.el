@@ -104,6 +104,16 @@ Its element is a pair of `buffer-name' and `mode-line-format'.")
   (setq helm-ido-like-source-header-default-box (face-attribute 'helm-source-header :box))
   (add-hook 'helm-before-initialize-hook 'helm-ido-like-toggle-header-line))
 
+(defvar helm-ido-like-bg-color (face-attribute 'default :background))
+
+(defun helm-ido-like-setup-bg-color-1 ()
+  (with-helm-buffer
+    (make-local-variable 'face-remapping-alist)
+    (add-to-list 'face-remapping-alist `(default (:background ,helm-ido-like-bg-color)))))
+
+(defun helm-ido-like-setup-bg-color ()
+  (add-hook 'helm-after-initialize-hook 'helm-ido-like-setup-bg-color-1))
+
 (defun helm-ido-like-find-files-up-one-level-maybe ()
   (interactive)
   (if (looking-back "/" 1)
