@@ -3,7 +3,7 @@
 :SUMMARY: Configuration guide for the helm package of Emacs
 :END:
 
-[[./yoda-1091030_640.jpg]]
+[[./yoda.jpg]]
 
 This guide was intended for people which used ido in the past and wanted helm to
 behave more like ido (ido + flx-ido + ido-vertical-mode + smex). Now this guide inlcudes
