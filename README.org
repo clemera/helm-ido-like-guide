@@ -24,6 +24,8 @@ For now the configuration snippets and packages will provide the following featu
 - Smex support for =helm-M-x= , to adjust search results for recent and most frequent used commands
 - Remember last candidates for more sources with =helm-adaptive= (Not recommended for now)
 
+For more great helm-hacks have a look at [[https://github.com/cute-jumper/helm-ext][helm-ext]].
+
 *NOTE*
 
 This is a work in progress. If you encounter any problems let me know.
