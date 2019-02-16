@@ -9,7 +9,7 @@ This guide was intended for people which used ido in the past and wanted helm to
 behave more like ido (ido + flx-ido + ido-vertical-mode + smex). Now this guide inlcudes
 many snippets which are useful for helm usage in general and has become more of collection
 of configuration tips and recommended packages to improve helms default interface.
- 
+
 For now the configuration snippets and packages will provide the following features for you:
 
 
@@ -30,7 +30,7 @@ For more great helm-hacks have a look at [[https://github.com/cute-jumper/helm-e
 
 This is a work in progress. If you encounter any problems let me know.
 Some of this is my own work, but most is based on work of others that I summarized in this tutorial.
-Everyone has his own opinions what is considered an improvement because of that I have splitted 
+Everyone has his own opinions what is considered an improvement because of that I have splitted
 the guide into parts where each snippet should be independent of others, so you can just pick what you like.
 
 ** Screenshots
@@ -42,10 +42,10 @@ Theme: [[https://github.com/edran/hc-zenburn-emacs][hc-zenburn]] with some adjus
 
 If you haven't already go and install helm, helm-swoop, helm-flx, helm-fuzzier, smex and helm-smex. You can do it
 quickly by evaluating the following snippet.
- 
+
 #+BEGIN_SRC emacs-lisp
   (require 'package)
-  ;; Note that certificate verfication in Emacs 24.4 needs some 
+  ;; Note that certificate verfication in Emacs 24.4 needs some
   ;; manual adjustments if you want to be really secure.
   ;; Read this for more info on this: https://glyph.twistedmatrix.com/2015/11/editor-malware.html
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
@@ -99,8 +99,15 @@ The following snippet will configure helm to always pop up at the bottom.
   ;; input in header line
   (setq helm-echo-input-in-header-line t)
   (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe))
+#+END_SRC
 
+With newer helm versions you can also use the following instead:
 
+#+BEGIN_SRC
+(with-eval-after-load 'helm
+  (setq helm-always-two-windows nil)
+  (setq helm-display-buffer-default-height 15)
+  (setq helm-default-display-buffer-functions '(display-buffer-in-side-window)))
 #+END_SRC
 
 
@@ -277,7 +284,7 @@ And this snippet will remove the dots in helm file navigation
 [[https://github.com/TheBB/spacemacs-layers/tree/master/no-dots][Reference]]
 
 #+BEGIN_SRC emacs-lisp :tangle helm-ido-like.el
-  
+
 (defvar helm-ido-like-no-dots-whitelist
   '("*Helm file completions*")
   "List of helm buffers in which to show dot directories.")
@@ -308,12 +315,12 @@ And this snippet will remove the dots in helm file navigation
 
 ** Improve Flx support
 
-And you can increase flx speed (I have not benchmarked it myself) by adjusting 
-the garbage collection setting. In addition to that the following snippet  
+And you can increase flx speed (I have not benchmarked it myself) by adjusting
+the garbage collection setting. In addition to that the following snippet
 advices the helm source function to enable the flx fuzzy match in most sources
-but file completions(you still have fuzzy matching from helm) and async sources.  
+but file completions(you still have fuzzy matching from helm) and async sources.
 
-[[http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/][Reference]] 
+[[http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/][Reference]]
 [[https://github.com/emacs-helm/helm/issues/145#issuecomment-151953381][Reference]]
 
 #+BEGIN_SRC emacs-lisp :tangle helm-ido-like.el
@@ -343,10 +350,10 @@ but file completions(you still have fuzzy matching from helm) and async sources.
   (advice-add 'helm-make-source :around 'helm-ido-like-helm-make-source))
 
 
-#+END_SRC 
+#+END_SRC
 
 With recent helm version there is a problem for file navigation, when
-helm-fuzzier is activated. Because of that it's better to deactivate it 
+helm-fuzzier is activated. Because of that it's better to deactivate it
 for file completions
 
 #+BEGIN_SRC emacs-lisp :tangle helm-ido-like.el
@@ -409,7 +416,7 @@ I can live without it, but maybe I will try to fix it later.
          source)
         ((listp adapt-source)
          (and (member 'helm-adaptive-sort adapt-source) source))
-        ((eq adapt-source 'helm-adaptive-sort)         
+        ((eq adapt-source 'helm-adaptive-sort)
          source)))))
 
   (require 'dash)
